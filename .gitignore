@@ -2,8 +2,8 @@ __pycache__
 .idea
 data/*.txt
 data/*.bak
-results/*.txt
-results/*.csv
-results/*.png
+# results/*.txt
+# results/*.csv
+# results/*.png
 *.h5
 .DS_Store
