@@ -41,28 +41,28 @@ def alloc_max_array():
     print_memory_usage()
 
 
-def alloc_max_str():
-    """Allocates memory for maximum string.
-    See: https://stackoverflow.com/a/15495136
+# def alloc_max_str():
+#     """Allocates memory for maximum string.
+#     See: https://stackoverflow.com/a/15495136
 
-    :return: None
-    """
-    i = 0
-    while True:
-        try:
-            a = ' ' * (i * 10 * MEGA)
-            del a
-        except MemoryError as error:
-            # Output expected MemoryErrors.
-            log_exception(error)
-            break
-        except Exception as exception:
-            # Output unexpected Exceptions.
-            log_exception(exception, False)
-        i += 1
-    max_i = i - 1
-    print('Maximum string size:', (max_i * 10 * MEGA))
-    print_memory_usage()
+#     :return: None
+#     """
+#     i = 0
+#     while True:
+#         try:
+#             a = ' ' * (i * 10 * MEGA)
+#             del a
+#         except MemoryError as error:
+#             # Output expected MemoryErrors.
+#             log_exception(error)
+#             break
+#         except Exception as exception:
+#             # Output unexpected Exceptions.
+#             log_exception(exception, False)
+#         i += 1
+#     max_i = i - 1
+#     print('Maximum string size:', (max_i * 10 * MEGA))
+#     print_memory_usage()
 
 
 def log_exception(exception: BaseException, expected: bool = True):

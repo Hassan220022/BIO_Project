@@ -1,32 +1,22 @@
-# Importing the numpy library for numerical operations
 import numpy as np
-# Importing the pandas library for data manipulation and analysis
-import pandas as pd
-# Importing the matplotlib library for plotting
-import matplotlib
-# Setting the matplotlib backend to 'agg' for non-GUI backend usage
-matplotlib.use('agg')
-# Importing the pyplot module from matplotlib for plotting
-import matplotlib.pyplot as plt
 
-# Importing train_test_split function from sklearn for splitting data arrays into two subsets: for training data and for testing data
-from sklearn.model_selection import train_test_split
-# Importing StratifiedKFold class from sklearn for stratified k-fold cross-validation
-from sklearn.model_selection import StratifiedKFold
-# Importing PCA (Principal Component Analysis) class from sklearn for dimensionality reduction
-from sklearn.decomposition import PCA
-# Importing GaussianRandomProjection class from sklearn for dimensionality reduction via Gaussian random projection
-from sklearn.random_projection import GaussianRandomProjection
-# Importing the cluster module from sklearn for clustering algorithms
-from sklearn import cluster
-# Importing GridSearchCV class from sklearn for exhaustive search over specified parameter values for an estimator
-from sklearn.model_selection import GridSearchCV
-# Importing SVC (Support Vector Classification) class from sklearn for support vector machine classification
-from sklearn.svm import SVC
-# Importing RandomForestClassifier class from sklearn for a random forest classifier
-from sklearn.ensemble import RandomForestClassifier
-# Importing roc_auc_score function from sklearn for computing the area under the ROC curve
-from sklearn.metrics import roc_auc_score
+import pandas as pd # data manipulation and analysis
+import matplotlib
+matplotlib.use('agg') # backend to 'agg' for non-GUI backend usage
+import matplotlib.pyplot as plt #for plotting
+from sklearn.model_selection import train_test_split #for splitting data into test = 20%, training = 80%
+from sklearn.model_selection import StratifiedKFold # for stratified k-fold 5 cross-validation 
+
+from sklearn.decomposition import PCA # for dimensionality reduction around variance 99%
+
+from sklearn.random_projection import GaussianRandomProjection #for dimensionality reduction via Gaussian random projection
+# from sklearn import cluster #sklearn for clustering algorithms   $$ not used btw
+from sklearn.model_selection import GridSearchCV # for enhancing search in excel files
+from sklearn.svm import SVC #sklearn for support vector machine classification
+
+from sklearn.ensemble import RandomForestClassifier # for a random forest classifier
+
+from sklearn.metrics import roc_auc_score #for computing the area under the ROC curve
 # Importing accuracy_score function from sklearn for calculating the accuracy classification score
 from sklearn.metrics import accuracy_score
 # Importing precision_score function from sklearn for computing the precision
@@ -76,7 +66,7 @@ class DeepMicrobiome(object):
         self.prefix = ''
         self.representation_only = False
 
-    def loadData(self, feature_string, label_string, label_dict, dtype=None):
+    def loadData(self, feature_string, label_string, label_dictionary, dtype=None):
         # read file
         filename = self.data_dir + "data/" + self.filename
         if os.path.isfile(filename):
@@ -87,13 +77,20 @@ class DeepMicrobiome(object):
 
         # select rows having feature index identifier string
         X = raw.loc[raw.index.str.contains(feature_string, regex=False)].T
-
+            #.loc[] selects based on labels and boolean'
+            #.index allows faster lookup 
+            # .str.conatins(fs,regex) fs -> contains a spacific substring or not    
+            #         regex -> return array of boolean, true if fs is found or false if not
         # get class labels
-        Y = raw.loc[label_string] #'disease'
-        Y = Y.replace(label_dict)
+        Y = raw.loc[label_string] #disease
+        Y = Y.replace(label_dictionary)
 
-        # train and test split
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X.values.astype(dtype), Y.values.astype('int'), test_size=0.2, random_state=self.seed, stratify=Y.values)
+        # train = 80% and test = 20% split 
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X.values.astype(dtype), 
+                                                                                Y.values.astype('int'), 
+                                                                                test_size=0.2, 
+                                                                                random_state=self.seed, 
+                                                                                stratify=Y.values)
         self.printDataShapes()
 
     def loadCustomData(self, dtype=None):
@@ -137,7 +134,8 @@ class DeepMicrobiome(object):
 
         # train and test split
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(raw.values.astype(dtype),
-                                                                                label_flatten.astype('int'), test_size=0.2,
+                                                                                label_flatten.astype('int'), 
+                                                                                test_size=0.2,
                                                                                 random_state=self.seed,
                                                                                 stratify=label_flatten)
         self.printDataShapes()
@@ -247,7 +245,8 @@ class DeepMicrobiome(object):
         self.X_test = self.encoder.predict(self.X_test)
 
     # Variational Autoencoder
-    def vae(self, dims = [10], epochs=2000, batch_size=100, verbose=2, loss='mse', output_act=False, act='relu', patience=25, beta=1.0, warmup=True, warmup_rate=0.01, val_rate=0.2, no_trn=False):
+    def vae(self, dims = [10], epochs=2000, batch_size=100, verbose=2, loss='mse', output_act=False, act='relu',
+            patience=25, beta=1.0, warmup=True, warmup_rate=0.01, val_rate=0.2, no_trn=False):
 
         # manipulating an experiment identifier in the output file
         if patience != 25:
@@ -596,7 +595,7 @@ if __name__ == '__main__':
     print(args)
 
     # set labels for diseases and controls
-    label_dict = {
+    label_dictionary = {
         # Controls
         'n': 0,
         # Chirrhosis
@@ -650,7 +649,7 @@ if __name__ == '__main__':
                 feature_string = "gi|"
 
             ## load data into the object
-            dm.loadData(feature_string=feature_string, label_string='disease', label_dict=label_dict,
+            dm.loadData(feature_string=feature_string, label_string='disease', label_dictionary=label_dictionary,
                         dtype=dtypeDict[args.dataType])
 
         ## user data

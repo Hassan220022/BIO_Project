@@ -1,4 +1,3 @@
-
 from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout, Input, Lambda, Conv2D, Conv2DTranspose, MaxPool2D, UpSampling2D, Flatten, Reshape, Cropping2D
 from keras import backend as K
