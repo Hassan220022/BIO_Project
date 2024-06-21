@@ -7,7 +7,6 @@ PROCESS = psutil.Process(os.getpid())
 MEGA = 10 ** 6
 MEGA_STR = ' ' * MEGA
 
-
 def main():
     try:
         print_memory_usage()

@@ -1,44 +1,69 @@
-# importing numpy, pandas, and matplotlib
+# Importing the numpy library for numerical operations
 import numpy as np
+# Importing the pandas library for data manipulation and analysis
 import pandas as pd
+# Importing the matplotlib library for plotting
 import matplotlib
+# Setting the matplotlib backend to 'agg' for non-GUI backend usage
 matplotlib.use('agg')
+# Importing the pyplot module from matplotlib for plotting
 import matplotlib.pyplot as plt
 
-# importing sklearn
+# Importing train_test_split function from sklearn for splitting data arrays into two subsets: for training data and for testing data
 from sklearn.model_selection import train_test_split
+# Importing StratifiedKFold class from sklearn for stratified k-fold cross-validation
 from sklearn.model_selection import StratifiedKFold
+# Importing PCA (Principal Component Analysis) class from sklearn for dimensionality reduction
 from sklearn.decomposition import PCA
+# Importing GaussianRandomProjection class from sklearn for dimensionality reduction via Gaussian random projection
 from sklearn.random_projection import GaussianRandomProjection
+# Importing the cluster module from sklearn for clustering algorithms
 from sklearn import cluster
+# Importing GridSearchCV class from sklearn for exhaustive search over specified parameter values for an estimator
 from sklearn.model_selection import GridSearchCV
+# Importing SVC (Support Vector Classification) class from sklearn for support vector machine classification
 from sklearn.svm import SVC
+# Importing RandomForestClassifier class from sklearn for a random forest classifier
 from sklearn.ensemble import RandomForestClassifier
+# Importing roc_auc_score function from sklearn for computing the area under the ROC curve
 from sklearn.metrics import roc_auc_score
+# Importing accuracy_score function from sklearn for calculating the accuracy classification score
 from sklearn.metrics import accuracy_score
+# Importing precision_score function from sklearn for computing the precision
 from sklearn.metrics import precision_score
+# Importing recall_score function from sklearn for computing the recall
 from sklearn.metrics import recall_score
+# Importing f1_score function from sklearn for computing the F1 score
 from sklearn.metrics import f1_score
 
-# importing keras
+# Importing the keras library for deep learning models
 import keras
+# Importing the backend module from keras for backend operations
 import keras.backend as K
+# Importing KerasClassifier class from keras.wrappers.scikit_learn for using Keras models as scikit-learn estimators
 from keras.wrappers.scikit_learn import KerasClassifier
+# Importing EarlyStopping, ModelCheckpoint, LambdaCallback classes from keras.callbacks for callbacks during model training
 from keras.callbacks import EarlyStopping, ModelCheckpoint, LambdaCallback
+# Importing Model, load_model functions from keras.models for working with Keras models
 from keras.models import Model, load_model
 
-# importing util libraries
+# Importing the datetime library for working with dates and times
 import datetime
+# Importing the time library for time-related functions
 import time
+# Importing the math library for mathematical functions
 import math
+# Importing the os library for interacting with the operating system
 import os
+# Importing the importlib library for importing modules
 import importlib
 
-# importing custom library
+# Importing custom library for deep neural network models
 import DNN_models
+# Importing custom library for exception handling
 import exception_handle
 
-#fix np.random.seed for reproducibility in numpy processing
+# Setting the seed for numpy's random number generator for reproducibility
 np.random.seed(7)
 
 class DeepMicrobiome(object):
