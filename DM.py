@@ -148,7 +148,8 @@ class DeepMicrobiome(object):
 
         # PCA
         pca = PCA()
-        pca.fit(self.X_train)
+        pca.fit(self.X_train) # fit the model with X
+                             # where x is array like with no._features and no._sample
         n_comp = 0
         ratio_sum = 0.0
 
@@ -161,12 +162,8 @@ class DeepMicrobiome(object):
         pca = PCA(n_components=n_comp)
         pca.fit(self.X_train)
 
-        X_train = pca.transform(self.X_train)
-        X_test = pca.transform(self.X_test)
-
-        # applying the eigenvectors to the whole training and the test set.
-        self.X_train = X_train
-        self.X_test = X_test
+        self.X_train= pca.transform(self.X_train)
+        self.X_test = pca.transform(self.X_test)
         self.printDataShapes()
 
     #Gausian Random Projection
@@ -174,7 +171,7 @@ class DeepMicrobiome(object):
         # manipulating an experiment identifier in the output file
         self.prefix = self.prefix + 'RandP_'
         # GRP
-        rf = GaussianRandomProjection(eps=0.5)
+        rf = GaussianRandomProjection(eps=0.5) #for the quiltiy of classification like xor problem ya hassan
         rf.fit(self.X_train)
 
         # applying GRP to the whole training and the test set.
