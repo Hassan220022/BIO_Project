@@ -2,8 +2,7 @@ from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout, Input, Lambda, Conv2D, Conv2DTranspose, MaxPool2D, UpSampling2D, Flatten, Reshape, Cropping2D
 from keras import backend as K
 from keras.losses import mse, binary_crossentropy
-import math
-import numpy as np
+
 
 # create MLP model
 def mlp_model(input_dim, numHiddenLayers=3, numUnits=64, dropout_rate=0.5):
@@ -20,7 +19,7 @@ def mlp_model(input_dim, numHiddenLayers=3, numUnits=64, dropout_rate=0.5):
         Range = range(numHiddenLayers - 1)
         #3ashan may3a3malsh calc col mara bi check 3ala el range
         for i in Range:
-            numUnits = numUnits // 2
+            numUnits = numUnits // 2 # round down
             model.add(Dense(numUnits, activation='relu'))
             model.add(Dropout(dropout_rate))
 
@@ -67,7 +66,9 @@ def autoencoder(dims, act='relu', init='glorot_uniform', latent_act = False, out
     h = x
 
     # internal layers in encoder
-    for i in range(n_internal_layers):
+    len_internal_layer_encoder = range(n_internal_layers)
+
+    for i in len_internal_layer_encoder:
         h = Dense(dims[i + 1], activation=act, kernel_initializer=init, name='encoder_%d' % i)(h)
 
     # bottle neck layer, features are extracted from here
@@ -76,7 +77,8 @@ def autoencoder(dims, act='relu', init='glorot_uniform', latent_act = False, out
     y = h
 
     # internal layers in decoder
-    for i in range(n_internal_layers, 0, -1):
+    len_internal_layer_dec =range(n_internal_layers, 0, -1)
+    for i in len_internal_layer_dec:
         y = Dense(dims[i], activation=act, kernel_initializer=init, name='decoder_%d' % i)(y)
 
     # output
@@ -85,6 +87,7 @@ def autoencoder(dims, act='relu', init='glorot_uniform', latent_act = False, out
     return Model(inputs=x, outputs=y, name='AE'), Model(inputs=x, outputs=h, name='encoder')
 
 def conv_autoencoder(dims, act='relu', init='glorot_uniform', latent_act = False, output_act = False, rf_rate = 0.1, st_rate = 0.25):
+    # rf_rate --> Reduction Factor Rate , st_rate --> Stride Rate
     # whether put activation function in latent layer
     if latent_act:
         l_act = act
@@ -117,7 +120,9 @@ def conv_autoencoder(dims, act='relu', init='glorot_uniform', latent_act = False
     stride_size_list = []
 
     # internal layers in encoder
-    for i in range(n_internal_layers):
+    len_n_internal_layers = range(n_internal_layers)
+
+    for i in len_n_internal_layers:
         print("rf_size: %d, st_size: %d" % (rf_size, stride_size))
         h = Conv2D(dims[i + 1], (rf_size,rf_size), strides=(stride_size, stride_size), activation=act, padding='same', kernel_initializer=init, name='encoder_conv_%d' % i)(h)
         #h = MaxPool2D((2,2), padding='same')(h)
@@ -139,7 +144,7 @@ def conv_autoencoder(dims, act='relu', init='glorot_uniform', latent_act = False
     print(stride_size_list)
 
     # internal layers in decoder
-    for i in range(n_internal_layers - 1, 0, -1):
+    for i in range(n_internal_layers - 1, 0, -1): #initial = n_int -1 , stop at 0 and will not reach it , step is -1
         y = Conv2DTranspose(dims[i], (rf_size_list[i-1],rf_size_list[i-1]), strides=(stride_size_list[i-1], stride_size_list[i-1]), activation=act, padding='same', kernel_initializer=init, name='decoder_conv_%d' % i)(y)
         #y = UpSampling2D((2,2))(y)
 
@@ -149,18 +154,6 @@ def conv_autoencoder(dims, act='relu', init='glorot_uniform', latent_act = False
     if K.int_shape(x)[1] != K.int_shape(y)[1]:
         cropping_size = K.int_shape(y)[1] - K.int_shape(x)[1]
         y = Cropping2D(cropping=((cropping_size, 0), (cropping_size, 0)), data_format=None)(y)
-
-    #print("dims[0]: %s" % str(dims[0]))
-
-    # output
-    # y = Conv2D(1, (rf_size, rf_size), activation=o_act, kernel_initializer=init, padding='same', name='decoder_1')(y)
-    #
-    # outputDim = reshapeDim * (2 ** n_internal_layers)
-    # if outputDim != dims[0][0]:
-    #     cropping_size = outputDim - dims[0][0]
-    #     #print(outputDim, dims[0][0], cropping_size)
-    #     y = Cropping2D(cropping=((cropping_size, 0), (cropping_size, 0)), data_format=None)(y)
-
 
     return Model(inputs=x, outputs=y, name='CAE'), Model(inputs=x, outputs=h, name='encoder')
 

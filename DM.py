@@ -169,8 +169,6 @@ class DeepMicrobiome(object):
            latent_act=False, output_act=False, act='relu', patience=20, val_rate=0.2, no_trn=False):
         #latent_act heya foundation framwork for *unspuervised* learning , dimesional reduction
         # manipulating an experiment identifier in the output file
-
-            # ppatience_DAEbtT
         
         if patience != 20:
             self.prefix += 'p' + str(patience) + '_'
@@ -189,6 +187,8 @@ class DeepMicrobiome(object):
         if act == 'sigmoid':
             self.prefix = self.prefix + 's'
 
+            #EX: ppatience_DAEbtT
+
         # filename for temporary model checkpoint
         modelName = self.prefix + self.data + '.h5'
 
@@ -201,7 +201,7 @@ class DeepMicrobiome(object):
                      ModelCheckpoint(modelName, monitor='val_loss', mode='min', verbose=1, save_best_only=True)]
 
         # spliting the training set into the inner-train and the inner-test set (validation set)
-        X_inner_train, X_inner_test, y_inner_train, y_inner_test = train_test_split(self.X_train, 
+        X_inner_train, X_inner_test, Y_inner_train, Y_inner_test = train_test_split(self.X_train, 
                                                                                     self.y_train, 
                                                                                     test_size=val_rate, 
                                                                                     random_state=self.seed, 
@@ -217,7 +217,7 @@ class DeepMicrobiome(object):
                                    #                  - parameters Ex: weights, biases
                                    #                  - total no. parametns: no. of tranable and non-traninable data
 
-            ######## kol dah will be printed and nothing will be :::::::::returned:::::::::::::
+            ######## kol dah will be printed and nothing will be :::::::::returned::::::::::::: referring to  summary()
 
         if no_trn:
             return
@@ -226,8 +226,8 @@ class DeepMicrobiome(object):
         self.autoencoder.compile(optimizer='adam', loss=loss)
 
         # fit model
-        self.history = self.autoencoder.fit(X_inner_train, X_inner_train, epochs=epochs, batch_size=batch_size, callbacks=callbacks,
-                             verbose=verbose, validation_data=(X_inner_test, X_inner_test))
+        self.history = self.autoencoder.fit(X_inner_train, Y_inner_train, epochs=epochs, batch_size=batch_size, callbacks=callbacks,
+                             verbose=verbose, validation_data=(X_inner_test, Y_inner_test))
         # save loss progress
         self.saveLossProgress()
 
@@ -243,7 +243,8 @@ class DeepMicrobiome(object):
     # Variational Autoencoder
     def vae(self, dims = [10], epochs=2000, batch_size=100, verbose=2, loss='mse', output_act=False, act='relu',
             patience=25, beta=1.0, warmup=True, warmup_rate=0.01, val_rate=0.2, no_trn=False):
-
+        # mse --> Mean Squared Error 
+        
         # manipulating an experiment identifier in the output file
         if patience != 25:
             self.prefix += 'p' + str(patience) + '_'
@@ -370,7 +371,7 @@ class DeepMicrobiome(object):
         self.cae.compile(optimizer='adam', loss=loss)
 
         # fit
-        self.history = self.cae.fit(X_inner_train, X_inner_train, epochs=epochs, batch_size=batch_size, callbacks=callbacks, verbose=verbose, validation_data=(X_inner_test, X_inner_test, None))
+        self.history = self.cae.fit(X_inner_train, y_inner_train, epochs=epochs, batch_size=batch_size, callbacks=callbacks, verbose=verbose, validation_data=(X_inner_test, y_inner_test, None))
 
         # save loss progress
         self.saveLossProgress()
@@ -389,7 +390,7 @@ class DeepMicrobiome(object):
         self.printDataShapes()
 
     # Classification
-    def classification(self, hyper_parameters, method='svm', cv=5, scoring='roc_auc', n_jobs=1, cache_size=10000):
+    def classification(self, hyper_parameters, method='svm', cross_validation=5, scoring='roc_auc', n_jobs=1, cache_size=10000):
         clf_start_time = time.time()
 
         print("# Tuning hyper-parameters")
@@ -397,18 +398,18 @@ class DeepMicrobiome(object):
 
         # Support Vector Machine
         if method == 'svm':
-            clf = GridSearchCV(SVC(probability=True, cache_size=cache_size), hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=100, )
+            clf = GridSearchCV(SVC(probability=True, cache_size=cache_size), hyper_parameters, cross_validation=StratifiedKFold(cross_validation, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=100, )
             clf.fit(self.X_train, self.y_train)
 
         # Random Forest
         if method == 'rf':
-            clf = GridSearchCV(RandomForestClassifier(n_jobs=-1, random_state=0), hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=100)
+            clf = GridSearchCV(RandomForestClassifier(n_jobs=-1, random_state=0), hyper_parameters, cross_validation=StratifiedKFold(cross_validation, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=100)
             clf.fit(self.X_train, self.y_train)
 
         # Multi-layer Perceptron
         if method == 'mlp':
             model = KerasClassifier(build_fn=DNN_models.mlp_model, input_dim=self.X_train.shape[1], verbose=0, )
-            clf = GridSearchCV(estimator=model, param_grid=hyper_parameters, cv=StratifiedKFold(cv, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=100)
+            clf = GridSearchCV(estimator=model, param_grid=hyper_parameters, cross_validation=StratifiedKFold(cross_validation, shuffle=True), scoring=scoring, n_jobs=n_jobs, verbose=100)
             clf.fit(self.X_train, self.y_train, batch_size=32)
 
         print("Best parameters set found on development set:")
@@ -420,11 +421,11 @@ class DeepMicrobiome(object):
         y_prob = clf.predict_proba(self.X_test)
 
         # Performance Metrics: AUC, ACC, Recall, Precision, F1_score
-        metrics = [round(roc_auc_score(y_true, y_prob[:, 1]), 4),
-                   round(accuracy_score(y_true, y_pred), 4),
+        metrics = [round(roc_auc_score(y_true, y_prob[:, 1]), 4), # koll el data mean ba3ad awal makan
+                   round(accuracy_score(y_true, y_pred), 4),# --> wi 4 represents no. of deciamal places
                    round(recall_score(y_true, y_pred), 4),
                    round(precision_score(y_true, y_pred), 4),
-                   round(f1_score(y_true, y_pred), 4), ]
+                   round(f1_score(y_true, y_pred), 4), ] # evaluate the accuracy of a classification model
 
         # time stamp
         metrics.append(str(datetime.datetime.now()))
@@ -707,25 +708,25 @@ if __name__ == '__main__':
 
             # training classification models
             if args.method == "svm":
-                dm.classification(hyper_parameters=svm_hyper_parameters, method='svm', cv=args.numFolds,
+                dm.classification(hyper_parameters=svm_hyper_parameters, method='svm', cross_validation=args.numFolds,
                                   n_jobs=args.numJobs, scoring=args.scoring, cache_size=args.svm_cache)
             elif args.method == "rf":
-                dm.classification(hyper_parameters=rf_hyper_parameters, method='rf', cv=args.numFolds,
+                dm.classification(hyper_parameters=rf_hyper_parameters, method='rf', cross_validation=args.numFolds,
                                   n_jobs=args.numJobs, scoring=args.scoring)
             elif args.method == "mlp":
-                dm.classification(hyper_parameters=mlp_hyper_parameters, method='mlp', cv=args.numFolds,
+                dm.classification(hyper_parameters=mlp_hyper_parameters, method='mlp', cross_validation=args.numFolds,
                                   n_jobs=args.numJobs, scoring=args.scoring)
             elif args.method == "svm_rf":
-                dm.classification(hyper_parameters=svm_hyper_parameters, method='svm', cv=args.numFolds,
+                dm.classification(hyper_parameters=svm_hyper_parameters, method='svm', cross_validation=args.numFolds,
                                   n_jobs=args.numJobs, scoring=args.scoring, cache_size=args.svm_cache)
-                dm.classification(hyper_parameters=rf_hyper_parameters, method='rf', cv=args.numFolds,
+                dm.classification(hyper_parameters=rf_hyper_parameters, method='rf', cross_validation=args.numFolds,
                                   n_jobs=args.numJobs, scoring=args.scoring)
             else:
-                dm.classification(hyper_parameters=svm_hyper_parameters, method='svm', cv=args.numFolds,
+                dm.classification(hyper_parameters=svm_hyper_parameters, method='svm', cross_validation=args.numFolds,
                                   n_jobs=args.numJobs, scoring=args.scoring, cache_size=args.svm_cache)
-                dm.classification(hyper_parameters=rf_hyper_parameters, method='rf', cv=args.numFolds,
+                dm.classification(hyper_parameters=rf_hyper_parameters, method='rf', cross_validation=args.numFolds,
                                   n_jobs=args.numJobs, scoring=args.scoring)
-                dm.classification(hyper_parameters=mlp_hyper_parameters, method='mlp', cv=args.numFolds,
+                dm.classification(hyper_parameters=mlp_hyper_parameters, method='mlp', cross_validation=args.numFolds,
                                   n_jobs=args.numJobs, scoring=args.scoring)
 
 
