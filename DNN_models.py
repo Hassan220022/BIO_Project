@@ -17,7 +17,9 @@ def mlp_model(input_dim, numHiddenLayers=3, numUnits=64, dropout_rate=0.5):
         model.add(Dropout(dropout_rate))
 
         # Second to the last hidden layers
-        for i in range(numHiddenLayers - 1):
+        Range = range(numHiddenLayers - 1)
+        #3ashan may3a3malsh calc col mara bi check 3ala el range
+        for i in Range:
             numUnits = numUnits // 2
             model.add(Dense(numUnits, activation='relu'))
             model.add(Dropout(dropout_rate))

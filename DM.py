@@ -10,47 +10,29 @@ from sklearn.model_selection import StratifiedKFold # for stratified k-fold 5 cr
 from sklearn.decomposition import PCA # for dimensionality reduction around variance 99%
 
 from sklearn.random_projection import GaussianRandomProjection #for dimensionality reduction via Gaussian random projection
-# from sklearn import cluster #sklearn for clustering algorithms   $$ not used btw
 from sklearn.model_selection import GridSearchCV # for enhancing search in excel files
 from sklearn.svm import SVC #sklearn for support vector machine classification
 
 from sklearn.ensemble import RandomForestClassifier # for a random forest classifier
-
 from sklearn.metrics import roc_auc_score #for computing the area under the ROC curve
-# Importing accuracy_score function from sklearn for calculating the accuracy classification score
-from sklearn.metrics import accuracy_score
-# Importing precision_score function from sklearn for computing the precision
-from sklearn.metrics import precision_score
-# Importing recall_score function from sklearn for computing the recall
-from sklearn.metrics import recall_score
-# Importing f1_score function from sklearn for computing the F1 score
-from sklearn.metrics import f1_score
+from sklearn.metrics import accuracy_score #calculating the accuracy classification score
+from sklearn.metrics import precision_score #computing the precision
+from sklearn.metrics import recall_score #for computing the recall
+from sklearn.metrics import f1_score #computing the F1 score
 
-# Importing the keras library for deep learning models
-import keras
-# Importing the backend module from keras for backend operations
+import keras # deep learning models
 import keras.backend as K
-# Importing KerasClassifier class from keras.wrappers.scikit_learn for using Keras models as scikit-learn estimators
-from keras.wrappers.scikit_learn import KerasClassifier
-# Importing EarlyStopping, ModelCheckpoint, LambdaCallback classes from keras.callbacks for callbacks during model training
-from keras.callbacks import EarlyStopping, ModelCheckpoint, LambdaCallback
-# Importing Model, load_model functions from keras.models for working with Keras models
-from keras.models import Model, load_model
+from keras.wrappers.scikit_learn import KerasClassifier #using Keras models as scikit-learn estimators
+from keras.callbacks import EarlyStopping, ModelCheckpoint, LambdaCallback #for callbacks during model training
+from keras.models import Model, load_model #for working with Keras models
 
-# Importing the datetime library for working with dates and times
-import datetime
-# Importing the time library for time-related functions
-import time
-# Importing the math library for mathematical functions
-import math
-# Importing the os library for interacting with the operating system
+import datetime #datetime library for working with dates and times
+import time #time library for time-related functions
+import math 
 import os
-# Importing the importlib library for importing modules
-import importlib
+import importlib # importlib library for importing modules
 
-# Importing custom library for deep neural network models
 import DNN_models
-# Importing custom library for exception handling
 import exception_handle
 
 # Setting the seed for numpy's random number generator for reproducibility
@@ -625,7 +607,7 @@ if __name__ == '__main__':
         'leaness': 0, 'obesity': 1,
     }
 
-    # hyper-parameter grids for classifiers
+    #Random forset hyper-parameter grids for classifiers
     rf_hyper_parameters = [{'n_estimators': [s for s in range(100, 1001, 200)],
                             'max_features': ['sqrt', 'log2'],
                             'min_samples_leaf': [1, 2, 3, 4, 5],
@@ -643,7 +625,7 @@ if __name__ == '__main__':
                              },]
 
 
-    # run exp function
+    # run experiment function
     def run_exp(seed):
 
         # create an object and load data
@@ -720,7 +702,7 @@ if __name__ == '__main__':
             print("Classification task has been skipped.")
         else:
             # turn off GPU
-            os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+            os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # to force using CPU
             importlib.reload(keras)
 
             # training classification models
