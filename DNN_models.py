@@ -8,7 +8,7 @@ import numpy as np
 # create MLP model
 def mlp_model(input_dim, numHiddenLayers=3, numUnits=64, dropout_rate=0.5):
 
-    model = Sequential()
+    model = Sequential() ## from built in modle in Keras
 
     #Check number of hidden layers
     if numHiddenLayers >= 1:

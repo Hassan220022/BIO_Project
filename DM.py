@@ -61,6 +61,8 @@ class DeepMicrobiome(object):
         self.t_start = time.time()
         self.filename = str(data)
         self.data = self.filename.split('.')[0]
+        # example.txt --> ("example","txt")
+        
         self.seed = seed
         self.data_dir = data_dir
         self.prefix = ''
@@ -133,6 +135,7 @@ class DeepMicrobiome(object):
             exit()
 
         # train and test split
+        # train = 80% and test = 20% split 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(raw.values.astype(dtype),
                                                                                 label_flatten.astype('int'), 
                                                                                 test_size=0.2,
@@ -173,16 +176,20 @@ class DeepMicrobiome(object):
         # GRP
         rf = GaussianRandomProjection(eps=0.5) #for the quiltiy of classification like xor problem ya hassan
         rf.fit(self.X_train)
-
+        
         # applying GRP to the whole training and the test set.
         self.X_train = rf.transform(self.X_train)
         self.X_test = rf.transform(self.X_test)
         self.printDataShapes()
 
     #Shallow Autoencoder & Deep Autoencoder
-    def ae(self, dims = [50], epochs= 2000, batch_size=100, verbose=2, loss='mean_squared_error', latent_act=False, output_act=False, act='relu', patience=20, val_rate=0.2, no_trn=False):
-
+    def ae(self, dims = [50], epochs= 2000, batch_size=100, verbose=2, loss='mean_squared_error',
+           latent_act=False, output_act=False, act='relu', patience=20, val_rate=0.2, no_trn=False):
+        #latent_act heya foundation framwork for *unspuervised* learning , dimesional reduction
         # manipulating an experiment identifier in the output file
+
+            # ppatience_DAEbtT
+        
         if patience != 20:
             self.prefix += 'p' + str(patience) + '_'
         if len(dims) == 1:
@@ -196,6 +203,7 @@ class DeepMicrobiome(object):
         if output_act:
             self.prefix += 'T'
         self.prefix += str(dims).replace(", ", "-") + '_'
+            #ex: (100, 200) --> "(100-200)_"
         if act == 'sigmoid':
             self.prefix = self.prefix + 's'
 
@@ -211,14 +219,23 @@ class DeepMicrobiome(object):
                      ModelCheckpoint(modelName, monitor='val_loss', mode='min', verbose=1, save_best_only=True)]
 
         # spliting the training set into the inner-train and the inner-test set (validation set)
-        X_inner_train, X_inner_test, y_inner_train, y_inner_test = train_test_split(self.X_train, self.y_train, test_size=val_rate, random_state=self.seed, stratify=self.y_train)
+        X_inner_train, X_inner_test, y_inner_train, y_inner_test = train_test_split(self.X_train, 
+                                                                                    self.y_train, 
+                                                                                    test_size=val_rate, 
+                                                                                    random_state=self.seed, 
+                                                                                    stratify=self.y_train)
 
         # insert input shape into dimension list
         dims.insert(0, X_inner_train.shape[1])
 
-        # create autoencoder model
+        # create autoencoder model from DNN_models using autoencoder
         self.autoencoder, self.encoder = DNN_models.autoencoder(dims, act=act, latent_act=latent_act, output_act=output_act)
-        self.autoencoder.summary()
+        self.autoencoder.summary() # would ouput: --> - layer type "list all the layers: conv, maxpool"
+                                   #                  - Ouput shape Bass to understand ezay el data dimensions changes as it passes through different layers
+                                   #                  - parameters Ex: weights, biases
+                                   #                  - total no. parametns: no. of tranable and non-traninable data
+
+            ######## kol dah will be printed and nothing will be :::::::::returned:::::::::::::
 
         if no_trn:
             return
@@ -286,13 +303,14 @@ class DeepMicrobiome(object):
             callbacks.append(warm_up_cb)
 
         # spliting the training set into the inner-train and the inner-test set (validation set)
+        # train = (100-var_rate)% and test = var_rate% split by default it's 20% test
         X_inner_train, X_inner_test, y_inner_train, y_inner_test = train_test_split(self.X_train, self.y_train,
                                                                                     test_size=val_rate,
                                                                                     random_state=self.seed,
                                                                                     stratify=self.y_train)
 
         # insert input shape into dimension list
-        dims.insert(0, X_inner_train.shape[1])
+        dims.insert(0, X_inner_train.shape[1])   #X_inner_train.shape will return tuple shape [1] will retrun the second one only 
 
         # create vae model
         self.vae, self.encoder, self.decoder = DNN_models.variational_AE(dims, act=act, recon_loss=loss, output_act=output_act, beta=beta)
